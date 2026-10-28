@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 顶部服务器层 -->
+    <path
+        android:pathData="M36,30 h36 a7,7 0 0 1 7,7 v6 a7,7 0 0 1 -7,7 h-36 a7,7 0 0 1 -7,-7 v-6 a7,7 0 0 1 7,-7 z"
+        android:strokeWidth="1"
+        android:strokeColor="#66FFFFFF">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="29"
+                android:startY="30"
+                android:endX="79"
+                android:endY="50">
+                <item android:color="#FFFFFFFF" android:offset="0" />
+                <item android:color="#FFCFCFD6" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 中部服务器层 -->
+    <path
+        android:pathData="M36,54 h36 a7,7 0 0 1 7,7 v6 a7,7 0 0 1 -7,7 h-36 a7,7 0 0 1 -7,-7 v-6 a7,7 0 0 1 7,-7 z"
+        android:strokeWidth="1"
+        android:strokeColor="#55FFFFFF">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="29"
+                android:startY="54"
+                android:endX="79"
+                android:endY="74">
+                <item android:color="#FFE9E9EE" android:offset="0" />
+                <item android:color="#FFB4B4BC" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 底部服务器层 -->
+    <path
+        android:pathData="M36,78 h36 a7,7 0 0 1 7,7 v6 a7,7 0 0 1 -7,7 h-36 a7,7 0 0 1 -7,-7 v-6 a7,7 0 0 1 7,-7 z"
+        android:strokeWidth="1"
+        android:strokeColor="#44FFFFFF">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="29"
+                android:startY="78"
+                android:endX="79"
+                android:endY="98">
+                <item android:color="#FFD4D4DA" android:offset="0" />
+                <item android:color="#FF9A9AA3" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 指示灯 -->
+    <path android:pathData="M39,36.5 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0" android:fillColor="#FF18181B" />
+    <path android:pathData="M39,60.5 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0" android:fillColor="#FF18181B" />
+    <path android:pathData="M39,84.5 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0" android:fillColor="#FF18181B" />
+
+    <!-- 细节线 -->
+    <path android:pathData="M50,39 h16" android:strokeWidth="2" android:strokeColor="#AA18181B" android:strokeLineCap="round" />
+    <path android:pathData="M50,63 h16" android:strokeWidth="2" android:strokeColor="#9918181B" android:strokeLineCap="round" />
+    <path android:pathData="M50,87 h16" android:strokeWidth="2" android:strokeColor="#8818181B" android:strokeLineCap="round" />
+</vector>

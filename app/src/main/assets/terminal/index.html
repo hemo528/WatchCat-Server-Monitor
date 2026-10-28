@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <link rel="stylesheet" href="xterm.css" />
+  <style>
+    :root { color-scheme: dark; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100vh;
+      background: transparent; overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    #terminal {
+      box-sizing: border-box;
+      width: 100%; height: 100vh;
+      padding: 10px 12px 8px 14px;
+      background: transparent;
+    }
+    .xterm { height: 100%; }
+    .xterm .xterm-viewport {
+      background: transparent !important;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148,163,184,.35) transparent;
+    }
+    .xterm .xterm-viewport::-webkit-scrollbar { width: 3px; }
+    .xterm .xterm-viewport::-webkit-scrollbar-thumb {
+      background: rgba(148,163,184,.35); border-radius: 99px;
+    }
+    .xterm .xterm-screen { background: transparent; }
+    .xterm .xterm-helper-textarea { opacity: 0; }
+  </style>
+</head>
+<body>
+<div id="terminal"></div>
+<script src="xterm.js"></script>
+<script src="addon-fit.js"></script>
+<script src="addon-web-links.js"></script>
+<script>
+  (function () {
+    const params = new URLSearchParams(location.search);
+    const fontSize = parseInt(params.get('fontSize') || '13', 10) || 13;
+    const accent = params.get('accent') || '#22D3EE';
+    const dark = params.get('dark') !== '0';
+    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+
+    const terminalTheme = dark ? {
+      background: '#00000000',
+      foreground: '#E8EEF9',
+      cursor: accent,
+      cursorAccent: '#05060F',
+      selectionBackground: 'rgba(255,255,255,0.22)',
+      selectionForeground: '#FFFFFF',
+      black: '#0B0F1E',
+      red: '#FB7185',
+      green: '#34D399',
+      yellow: '#FBBF24',
+      blue: '#60A5FA',
+      magenta: '#C084FC',
+      cyan: '#22D3EE',
+      white: '#E2E8F0',
+      brightBlack: '#64748B',
+      brightRed: '#FDA4AF',
+      brightGreen: '#6EE7B7',
+      brightYellow: '#FDE68A',
+      brightBlue: '#93C5FD',
+      brightMagenta: '#D8B4FE',
+      brightCyan: '#67E8F9',
+      brightWhite: '#FFFFFF'
+    } : {
+      background: '#00000000',
+      foreground: '#18181B',
+      cursor: accent,
+      cursorAccent: '#FFFFFF',
+      selectionBackground: 'rgba(14,116,144,0.20)',
+      selectionForeground: '#111114',
+      black: '#18181B',
+      red: '#BE123C',
+      green: '#047857',
+      yellow: '#B45309',
+      blue: '#1D4ED8',
+      magenta: '#6D28D9',
+      cyan: '#0E7490',
+      white: '#52525B',
+      brightBlack: '#71717A',
+      brightRed: '#E11D48',
+      brightGreen: '#059669',
+      brightYellow: '#D97706',
+      brightBlue: '#2563EB',
+      brightMagenta: '#7C3AED',
+      brightCyan: '#0891B2',
+      brightWhite: '#000000'
+    };
+
+    const term = new Terminal({
+      fontFamily: "'JetBrains Mono', 'Roboto Mono', 'SFMono-Regular', Menlo, monospace",
+      fontSize: fontSize,
+      lineHeight: 1.22,
+      letterSpacing: 0,
+      cursorBlink: true,
+      cursorStyle: 'bar',
+      cursorWidth: 2,
+      allowTransparency: true,
+      allowProposedApi: true,
+      scrollback: 8000,
+      drawBoldTextInBrightColors: true,
+      minimumContrastRatio: dark ? 1 : 4.5,
+      theme: terminalTheme
+    });
+
+    const fit = new FitAddon.FitAddon();
+    term.loadAddon(fit);
+    try {
+      term.loadAddon(new WebLinksAddon.WebLinksAddon(function (event, uri) {
+        if (window.Bridge && Bridge.openUrl) Bridge.openUrl(uri);
+      }));
+    } catch (e) { /* ignore */ }
+
+    term.open(document.getElementById('terminal'));
+
+    function applyViewportPx() {
+      const h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
+      const w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1);
+      document.documentElement.style.height = h + 'px';
+      document.documentElement.style.width = w + 'px';
+      document.body.style.height = h + 'px';
+      document.body.style.width = w + 'px';
+      const el = document.getElementById('terminal');
+      el.style.height = h + 'px';
+      el.style.width = w + 'px';
+    }
+    applyViewportPx();
+
+    let lastCols = 0, lastRows = 0;
+    function doFit(notify) {
+      try {
+        applyViewportPx();
+        fit.fit();
+        if (notify !== false && (term.cols !== lastCols || term.rows !== lastRows)) {
+          lastCols = term.cols;
+          lastRows = term.rows;
+          if (window.Bridge && Bridge.onResize) Bridge.onResize(term.cols, term.rows);
+        }
+      } catch (e) { /* layout not ready */ }
+    }
+
+    let raf = 0;
+    const ro = new ResizeObserver(function () {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(function () { doFit(true); });
+    });
+    ro.observe(document.getElementById('terminal'));
+    window.addEventListener('orientationchange', function () {
+      setTimeout(function () { doFit(true); }, 250);
+    });
+    window.addEventListener('resize', function () { applyViewportPx(); doFit(true); });
+
+    // WebView 首次布局可能是 0 高度，多次重试直到行列稳定
+    let fitAttempts = 0;
+    function fitLoop() {
+      applyViewportPx();
+      doFit(true);
+      fitAttempts++;
+      if (fitAttempts < 20 && (term.rows < 5 || term.cols < 20)) {
+        setTimeout(function () { applyViewportPx(); fitLoop(); }, 120);
+      } else if (fitAttempts < 6) {
+        setTimeout(function () { applyViewportPx(); fitLoop(); }, 180);
+      }
+    }
+    window.termFit = function () { applyViewportPx(); doFit(true); };
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) setTimeout(function () { doFit(true); }, 80);
+    });
+    setTimeout(fitLoop, 30);
+    setTimeout(function () { doFit(true); }, 400);
+    setTimeout(function () { doFit(true); }, 900);
+
+    term.onData(function (data) {
+      if (window.Bridge && Bridge.onInput) Bridge.onInput(data);
+    });
+    term.onSelectionChange(function () {
+      if (window.Bridge && Bridge.onSelection) Bridge.onSelection(term.getSelection());
+    });
+
+    // 暴露给 Android 的桥接函数
+    window.termWrite = function (text) {
+      if (typeof text === 'string') term.write(text);
+    };
+    window.termWriteBase64 = function (b64) {
+      try {
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        term.write(bytes);
+      } catch (e) { /* ignore */ }
+    };
+    window.termFocus = function () {
+      term.focus();
+      const el = document.querySelector('.xterm-helper-textarea');
+      if (el) el.focus();
+    };
+    window.termBlur = function () {
+      if (document.activeElement) document.activeElement.blur();
+    };
+    window.termSetFontSize = function (n) {
+      term.options.fontSize = Math.max(9, Math.min(24, parseInt(n, 10) || 13));
+      setTimeout(function () { doFit(true); }, 40);
+    };
+    window.termGetSelection = function () { return term.getSelection(); };
+    window.termClear = function () { term.clear(); };
+    window.termReset = function () { term.reset(); };
+    window.termDispose = function () { try { ro.disconnect(); term.dispose(); } catch (e) {} };
+
+    // 点击终端任意位置唤起输入焦点
+    document.getElementById('terminal').addEventListener('pointerdown', function () {
+      setTimeout(function () { term.focus(); }, 10);
+    }, { passive: true });
+
+    function ready() {
+      doFit(true);
+      if (window.Bridge && Bridge.onReady) Bridge.onReady();
+    }
+    requestAnimationFrame(function () { setTimeout(ready, 80); });
+  })();
+</script>
+</body>
+</html>
