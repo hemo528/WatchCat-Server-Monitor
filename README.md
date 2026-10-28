@@ -17,6 +17,8 @@ WatchCat 是一个用 Kotlin 与 Jetpack Compose 编写的 Android 服务器监�
   <img alt="License" src="https://img.shields.io/badge/License-PolyForm%20Noncommercial-2F81F7" />
 </p>
 
+**下载安装包：** [WatchCat v1.0.1 APK](https://github.com/hemo528/WatchCat-Server-Monitor/releases/tag/v1.0.1)（debug 签名，仅用于侧载体验）
+
 > [!IMPORTANT]
 > **版本说明**：本仓库公开的源码为 **WatchCat v1.0.1 基础版**。README 的功能介绍与截图展示的是 **v1.2.0** 的完整界面。v1.1 / v1.2 中的历史趋势、Docker / systemd、快捷命令、SFTP 文件管理等高级功能源码，以及安装包，均不在本仓库中。
 
@@ -122,7 +124,20 @@ sdk.dir=C\:\\path\\to\\Android\\Sdk
 app/build/outputs/apk/debug/app-debug.apk
 ```
 
-本仓库不提供预编译 APK。调试包使用 debug 签名，仅供本地侧载；正式分发前请配置自己的 release keystore。
+### 下载 APK
+
+v1.0.1 的可安装包发布在 [GitHub Releases](https://github.com/hemo528/WatchCat-Server-Monitor/releases/tag/v1.0.1)：
+
+```text
+文件：WatchCat-1.0.1-debug.apk
+SHA-256：35477c72580af408799123eb6b55e8c000d1b0ab3877e9e7a837e35b7a43ef5d
+```
+
+```bash
+adb install -r WatchCat-1.0.1-debug.apk
+```
+
+该包使用 Android Debug 签名，仅用于侧载体验；正式分发前请配置自己的 release keystore。该签名与后续版本不保证一致，覆盖安装前请确认。
 
 单元测试：
 
